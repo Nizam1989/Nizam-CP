@@ -70,7 +70,8 @@
       "Bash(npx tsc:*)",
       "Bash(gh run list:*)",
       "Bash(gh run:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(gh workflow run:*)"
     ],
     "deny": [],
     "ask": []
