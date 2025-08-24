@@ -67,7 +67,10 @@
       "Bash(dir)",
       "Bash(grep:*)",
       "Bash(func azure functionapp publish cpbackend5)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run:*)",
+      "Bash(gh api:*)"
     ],
     "deny": [],
     "ask": []
