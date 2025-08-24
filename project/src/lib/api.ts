@@ -12,6 +12,31 @@ const apiClient = axios.create({
   },
 });
 
+// Token management
+let authToken: string | null = null;
+
+// Axios interceptor to add auth token to requests
+apiClient.interceptors.request.use((config) => {
+  const token = authToken || localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Axios interceptor to handle auth errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid, clear it
+      authToken = null;
+      localStorage.removeItem('auth_token');
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Types
 export interface User {
   id: string;
@@ -111,6 +136,80 @@ const handleApiError = (error: any) => {
 
 // API functions
 export const api = {
+  // Authentication
+  async signIn(email: string, password: string): Promise<{ user: User; token: string }> {
+    try {
+      const response = await apiClient.post('/signIn', { email, password });
+      
+      if (response.data.success && response.data.data) {
+        const { user, token } = response.data.data;
+        authToken = token;
+        localStorage.setItem('auth_token', token);
+        return { user, token };
+      } else {
+        throw new Error(response.data.error || 'Sign in failed');
+      }
+    } catch (error: any) {
+      if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      }
+      throw new Error('Sign in failed. Please check your credentials.');
+    }
+  },
+
+  async signUp(email: string, password: string, fullName: string, role: string): Promise<void> {
+    try {
+      const response = await apiClient.post('/signUp', {
+        email,
+        password,
+        fullName,
+        role
+      });
+      
+      if (!response.data.success) {
+        throw new Error(response.data.error || 'Sign up failed');
+      }
+    } catch (error: any) {
+      if (error.response?.data?.error) {
+        throw new Error(error.response.data.error);
+      }
+      throw new Error('Sign up failed. Please try again.');
+    }
+  },
+
+  async getCurrentUser(): Promise<User> {
+    try {
+      const response = await apiClient.get('/getCurrentUser');
+      
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error || 'Failed to get current user');
+      }
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        throw new Error('Authentication required');
+      }
+      throw new Error('Failed to get current user');
+    }
+  },
+
+  async signOut(): Promise<void> {
+    try {
+      await apiClient.post('/signOut');
+    } catch (error) {
+      console.warn('Sign out API call failed:', error);
+    } finally {
+      authToken = null;
+      localStorage.removeItem('auth_token');
+    }
+  },
+
+  clearToken(): void {
+    authToken = null;
+    localStorage.removeItem('auth_token');
+  },
+
   // Initialize database
   async initializeDatabase(): Promise<ApiResponse<any>> {
     try {
