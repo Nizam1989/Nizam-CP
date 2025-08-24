@@ -343,6 +343,11 @@ export const api = {
 };
 
 // Export individual functions for backwards compatibility
+export const signIn = api.signIn;
+export const signUp = api.signUp;
+export const signOut = api.signOut;
+export const getCurrentUser = api.getCurrentUser;
+export const clearToken = api.clearToken;
 export const getJobs = api.getJobs;
 export const createJob = api.createJob;
 export const updateStep = api.updateStep;

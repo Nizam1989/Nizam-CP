@@ -36,9 +36,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('API object:', api);
+      console.log('signIn method exists:', typeof api.signIn);
+      
+      if (!api.signIn) {
+        throw new Error('signIn method not found on api object');
+      }
+      
       const response = await api.signIn(email, password);
       setUser(response.user);
     } catch (error) {
+      console.error('SignIn error:', error);
       if (error instanceof Error) {
         throw new Error(error.message);
       }
