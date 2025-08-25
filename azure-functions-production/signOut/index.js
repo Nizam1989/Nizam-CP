@@ -1,6 +1,21 @@
 module.exports = async function (context, req) {
     context.log('SignOut function executed');
 
+    // Handle CORS preflight request
+    if (req.method === 'OPTIONS') {
+        context.res = {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Max-Age': '3600'
+            },
+            body: ''
+        };
+        return;
+    }
+
     try {
         // For JWT tokens, we just return success since tokens are stateless
         // In a production environment, you might want to implement token blacklisting

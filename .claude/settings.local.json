@@ -71,7 +71,11 @@
       "Bash(gh run list:*)",
       "Bash(gh run:*)",
       "Bash(gh api:*)",
-      "Bash(gh workflow run:*)"
+      "Bash(gh workflow run:*)",
+      "Bash(az functionapp cors:*)",
+      "Bash(az logout:*)",
+      "Bash(az login:*)",
+      "Bash(func azure functionapp publish cpbackend5 --force)"
     ],
     "deny": [],
     "ask": []

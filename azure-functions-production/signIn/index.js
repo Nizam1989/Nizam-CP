@@ -40,6 +40,21 @@ function hashPassword(password) {
 module.exports = async function (context, req) {
     context.log('SignIn function executed');
 
+    // Handle CORS preflight request
+    if (req.method === 'OPTIONS') {
+        context.res = {
+            status: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+                'Access-Control-Max-Age': '3600'
+            },
+            body: ''
+        };
+        return;
+    }
+
     try {
         const { email, password } = req.body;
 
