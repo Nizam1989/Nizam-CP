@@ -58,6 +58,5 @@ jobs:
         id: fa
         with:
           app-name: 'cpbackend5'
-          slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CPBACKEND5 }}

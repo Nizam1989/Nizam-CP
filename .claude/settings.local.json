@@ -77,7 +77,8 @@
       "Bash(az login:*)",
       "Bash(func azure functionapp publish cpbackend5 --force)",
       "Bash(func start)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Bash(gh secret list:*)"
     ],
     "deny": [],
     "ask": []

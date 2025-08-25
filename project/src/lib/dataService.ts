@@ -94,7 +94,8 @@ class DataService {
 
   // Job Steps
   async getJobSteps(jobId: string): Promise<JobStep[]> {
-    return api.getJobSteps(jobId);
+    const response = await api.getJobSteps(jobId);
+    return response.success && response.data ? response.data : [];
   }
 
   async createJobSteps(steps: Omit<JobStep, 'id' | 'created_at'>[]): Promise<JobStep[]> {

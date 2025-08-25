@@ -83,7 +83,7 @@ export function NewJobForm() {
       const productType = productTypes.find(p => p.name === selectedProduct);
       if (!productType) throw new Error('Invalid product type');
 
-      // Create the job
+      // Create the job (backend now automatically creates steps)
       const job = await dataService.createJob({
         job_number: jobNumber,
         product_type: selectedProduct as any,
@@ -95,16 +95,6 @@ export function NewJobForm() {
         started_at: new Date().toISOString(),
         completed_at: null,
       });
-
-      // Create initial job steps
-      const steps = productType.stages.map((stage, index) => ({
-        job_id: job.id,
-        step_number: index + 1,
-        step_name: stage,
-        data: {},
-      }));
-
-      await dataService.createJobSteps(steps);
 
       navigate(`/jobs/${job.id}`);
     } catch (err: any) {

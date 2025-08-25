@@ -263,7 +263,7 @@ export const api = {
   // Production Steps
   async getJobSteps(jobId: string): Promise<ApiResponse<JobStep[]>> {
     try {
-      const response = await apiClient.get(`/getSteps/${jobId}`);
+      const response = await apiClient.get(`/getJobSteps/${jobId}`);
       return response.data;
     } catch (error) {
       return handleApiError(error);
