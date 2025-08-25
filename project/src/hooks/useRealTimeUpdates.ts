@@ -33,6 +33,7 @@ export const useRealTimeUpdates = (
   const intervalRef = useRef<NodeJS.Timeout>();
   const lastPollTimeRef = useRef<string>(new Date().toISOString());
   const isPollingRef = useRef(false);
+  const processedUpdateIds = useRef<Set<string>>(new Set());
 
   const pollForUpdates = useCallback(async () => {
     if (isPollingRef.current) return; // Prevent concurrent polls
@@ -45,24 +46,43 @@ export const useRealTimeUpdates = (
       const response = await api.getUpdates(lastPollTimeRef.current);
       
       if (response.success && response.data) {
-        const newUpdates = response.data;
+        const allUpdates = response.data;
+        
+        // Filter out already processed updates
+        const newUpdates = allUpdates.filter(update => !processedUpdateIds.current.has(update.id));
         
         if (newUpdates.length > 0) {
+          // Mark these updates as processed
+          newUpdates.forEach(update => processedUpdateIds.current.add(update.id));
+          
+          // Clean up old processed IDs if they get too many (keep last 500)
+          if (processedUpdateIds.current.size > 500) {
+            const idsArray = Array.from(processedUpdateIds.current);
+            processedUpdateIds.current = new Set(idsArray.slice(-300)); // Keep last 300
+          }
+          
           setUpdates(prev => {
             const combined = [...newUpdates, ...prev];
             // Keep only the last 100 updates to prevent memory issues
             return combined.slice(0, 100);
           });
           
-          // Update last poll time to the most recent update
-          const mostRecent = newUpdates[0];
-          lastPollTimeRef.current = mostRecent.createdAt;
-          setLastUpdateTime(mostRecent.createdAt);
+          // Update last poll time to the most recent update from all updates (not just new)
+          if (allUpdates.length > 0) {
+            const mostRecent = allUpdates[0];
+            lastPollTimeRef.current = mostRecent.createdAt;
+            setLastUpdateTime(mostRecent.createdAt);
+          }
           
-          // Call onUpdate callback for each new update
+          // Call onUpdate callback for each new update only
           if (onUpdate) {
             newUpdates.forEach(onUpdate);
           }
+        } else if (allUpdates.length > 0) {
+          // Even if no new updates, update the poll time to prevent re-fetching
+          const mostRecent = allUpdates[0];
+          lastPollTimeRef.current = mostRecent.createdAt;
+          setLastUpdateTime(mostRecent.createdAt);
         }
         
         setConnectionStatus('connected');
@@ -88,6 +108,8 @@ export const useRealTimeUpdates = (
     setUpdates([]);
     // Reset last poll time to now
     lastPollTimeRef.current = new Date().toISOString();
+    // Clear processed IDs to allow re-processing if needed
+    processedUpdateIds.current.clear();
   }, []);
 
   // Start/stop polling based on enabled state

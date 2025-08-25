@@ -5,9 +5,10 @@ module.exports = async function (context, req) {
 
     try {
         const since = req.query.since || new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const limit = parseInt(req.query.limit) || 100; // Add limit to prevent large result sets
         
         const result = await executeQuery(`
-            SELECT 
+            SELECT TOP (@param2)
                 id,
                 update_type as type,
                 entity_type as entityType,
@@ -18,13 +19,23 @@ module.exports = async function (context, req) {
             FROM system_updates 
             WHERE created_at > @param1 
             ORDER BY created_at DESC
-        `, [new Date(since)]);
+        `, [new Date(since), limit]);
 
         // Parse JSON data for each update
-        const updates = result.rows.map(update => ({
-            ...update,
-            data: typeof update.data === 'string' ? JSON.parse(update.data) : update.data
-        }));
+        const updates = result.rows.map(update => {
+            try {
+                return {
+                    ...update,
+                    data: typeof update.data === 'string' ? JSON.parse(update.data) : update.data
+                };
+            } catch (parseError) {
+                context.log.warn('Failed to parse update data:', parseError);
+                return {
+                    ...update,
+                    data: update.data // Return unparsed data if JSON parsing fails
+                };
+            }
+        });
 
         context.res = {
             status: 200,

@@ -75,7 +75,9 @@
       "Bash(az functionapp cors:*)",
       "Bash(az logout:*)",
       "Bash(az login:*)",
-      "Bash(func azure functionapp publish cpbackend5 --force)"
+      "Bash(func azure functionapp publish cpbackend5 --force)",
+      "Bash(func start)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

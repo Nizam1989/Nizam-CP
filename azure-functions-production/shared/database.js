@@ -15,8 +15,8 @@ const getDbConfig = () => ({
         database: process.env.SQL_DATABASE,
         encrypt: true,
         trustServerCertificate: false,
-        connectTimeout: 15000,
-        requestTimeout: 15000,
+        connectTimeout: 30000,
+        requestTimeout: 30000,
         rowCollectionOnRequestCompletion: true
     }
 });
